@@ -49,6 +49,60 @@ file_1_long <- file_1_selected %>%
 file_1_long
 ```
 
+Based on the schema, the enrollment column is formatted to extract a substring consisting of the 8th and 9th characters, representing the year. This substring extraction is vectorized using `substr()` within `mutate()`. Next, depending on whether the extracted year value is greater than 24, "20" or "19" is prefixed to the string using `if_else()`. Finally, the result is coerced to a numeric format using `as.numeric()`.
+
+```{r}
+file_1_long <- file_1_long |>
+  mutate(year = as.numeric(substr(x =as.character(Enrollment),start = 8,stop = 9 )))|>
+  mutate(year = if_else(condition = year>24,true = paste("19",as.character(year),sep = "") ,false = paste("20",as.character(year),sep = ""))) |>
+  mutate(year = as.numeric(year))
+file_1_long
+```
+
+```{r}
+f1_county <- file_1_long[grep(pattern = ", \\w\\w", file_1_long$area_name,invert = FALSE),]
+f1_county
+```
+
+```{r}
+f1_not_county <- file_1_long[grep(pattern = ", \\w\\w", file_1_long$area_name,invert = TRUE),]
+f1_not_county
+```
+
+```{r}
+class(f1_county) <- c("county", class(f1_county))
+class(f1_not_county) <- c("state", class(f1_not_county))
+```
+
+```{r}
+f1_county <- f1_county |>
+  mutate(state = substr(area_name, start = nchar(area_name) - 1, stop = nchar(area_name)))
+
+f1_county
+```
+
+```{r}
+# Defining the division function
+division <- function(state) {
+  case_when(
+    state %in% c("CONNECTICUT", "MAINE", "MASSACHUSETTS", "NEW HAMPSHIRE", "RHODE ISLAND", "VERMONT") ~ "Division 1",
+    state %in% c("DELAWARE", "MARYLAND", "NEW JERSEY", "NEW YORK", "PENNSYLVANIA") ~ "Division 2",
+    state %in% c("ILLINOIS", "INDIANA", "MICHIGAN", "OHIO", "WISCONSIN") ~ "Division 3",
+    state %in% c("IOWA", "KANSAS", "MINNESOTA", "MISSOURI", "NEBRASKA", "NORTH DAKOTA", "SOUTH DAKOTA") ~ "Division 4",
+    state %in% c("FLORIDA", "GEORGIA", "NORTH CAROLINA", "SOUTH CAROLINA", "VIRGINIA", "WEST VIRGINIA") ~ "Division 5",
+    state %in% c("ALABAMA", "KENTUCKY", "MISSISSIPPI", "TENNESSEE") ~ "Division 6",
+    state %in% c("ARKANSAS", "LOUISIANA", "OKLAHOMA", "TEXAS") ~ "Division 7",
+    state %in% c("ARIZONA", "COLORADO", "IDAHO", "MONTANA", "NEVADA", "NEW MEXICO", "UTAH", "WYOMING") ~ "Division 8",
+    state %in% c("ALASKA", "CALIFORNIA", "HAWAII", "OREGON", "WASHINGTON") ~ "Division 9",
+    TRUE ~ "ERROR"  # Default case if area_name doesn't match any category
+  )
+}
+
+# Vectorize the function to apply to a column of states
+f1_not_county <- f1_not_county |>
+  mutate(division = sapply(area_name, division))
+f1_not_county
+```
 
 Template Leftover\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
