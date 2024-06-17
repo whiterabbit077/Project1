@@ -29,10 +29,26 @@ head(file_1) #Preview
 Selecting the required columns with `select()` from `dplyr`. Selecting the columns `Area_name`, `STCOU` and columns ending with "D" (using `ends_with()`). Renaming `Area_name` to `area_name` with `mutate()` .
 
 ```{r}
-file_1 |>
+file_1_selected <- file_1 |>
   mutate(area_name = Area_name) |>
   select(area_name,STCOU,ends_with("D"))
+
+file_1_selected 
 ```
+
+Convert the data into long format where each row has only one enrollment value for that *Area_name*.
+
+```{r}
+file_1_long <- file_1_selected %>%
+  pivot_longer(
+    cols = ends_with("D"),
+    names_to = "Enrollment", 
+    values_to = "Value"
+  )
+
+file_1_long
+```
+
 
 Template Leftover\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
