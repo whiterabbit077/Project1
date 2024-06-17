@@ -4,9 +4,19 @@ format: html
 editor: visual
 ---
 
-## Quarto
+### Data
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+The files to be read contain information from the *Census Bureau* in csv format. The aim is to create generic functions that can process and plot files in specific tabular format. Firstly, data processing steps will be applied to [File 1](https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv).
+
+### Data Processing
+
+#### First Steps
+
+The first step requires retuning specific columns from full set. This is made easier using the `tidyverse` packages. Loading the `tidyverse` packages using `require()` .
+
+```{r}
+require(tidyverse)
+```
 
 ## Running Code
 
