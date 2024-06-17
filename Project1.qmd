@@ -18,15 +18,23 @@ The first step requires retuning specific columns from full set. This is made ea
 require(tidyverse)
 ```
 
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+Reading in [File 1](https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv) using `read_csv().`
 
 ```{r}
-1 + 1
+file_1 <- read_csv("https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv")
+
+head(file_1) #Preview
 ```
 
-You can add options to executable code like this
+Selecting the required columns with `select()` from `dplyr`. Selecting the columns `Area_name`, `STCOU` and columns ending with "D" (using `ends_with()`). Renaming `Area_name` to `area_name` with `mutate()` .
+
+```{r}
+file_1 |>
+  mutate(area_name = Area_name) |>
+  select(area_name,STCOU,ends_with("D"))
+```
+
+Template Leftover\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
 ```{r}
 #| echo: false
