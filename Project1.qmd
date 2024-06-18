@@ -22,7 +22,6 @@ Reading in [File 1](https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv) usin
 
 ```{r}
 file_1 <- read_csv("https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv")
-
 head(file_1) #Preview
 ```
 
@@ -52,20 +51,22 @@ file_1_long
 Based on the schema, the enrollment column is formatted to extract a substring consisting of the 8th and 9th characters, representing the year. This substring extraction is vectorized using `substr()` within `mutate()`. Next, depending on whether the extracted year value is greater than 24, "20" or "19" is prefixed to the string using `if_else()`. Finally, the result is coerced to a numeric format using `as.numeric()`.
 
 ```{r}
-file_1_long <- file_1_long |>
+file_1_formatted <- file_1_long |>
   mutate(year = as.numeric(substr(x =as.character(Enrollment),start = 8,stop = 9 )))|>
-  mutate(year = if_else(condition = year>24,true = paste("19",as.character(year),sep = "") ,false = paste("20",as.character(year),sep = ""))) |>
+  mutate(year = if_else(condition = year>24,
+                        true = paste("19",as.character(year),sep = "") ,
+                        false = paste("20",as.character(year),sep = ""))) |>
   mutate(year = as.numeric(year))
-file_1_long
+file_1_formatted
 ```
 
 ```{r}
-f1_county <- file_1_long[grep(pattern = ", \\w\\w", file_1_long$area_name,invert = FALSE),]
+f1_county <- file_1_formatted[grep(pattern = ", \\w\\w", file_1_formatted$area_name,invert = FALSE),]
 f1_county
 ```
 
 ```{r}
-f1_not_county <- file_1_long[grep(pattern = ", \\w\\w", file_1_long$area_name,invert = TRUE),]
+f1_not_county <- file_1_formatted[grep(pattern = ", \\w\\w", file_1_formatted$area_name,invert = TRUE),]
 f1_not_county
 ```
 
@@ -103,6 +104,145 @@ f1_not_county <- f1_not_county |>
   mutate(division = sapply(area_name, division))
 f1_not_county
 ```
+
+Read dataset 2
+
+```{r}
+file_2 <- read_csv("https://www4.stat.ncsu.edu/~online/datasets/EDU01b.csv")
+head(file_2)
+```
+
+Write a function for tasks 1 and 2. We'll be using the {{ }} operator, also known as curly-curly, that is used to capture and unquote arguments in tidy evaluation. It is a way to pass expressions directly into tidyverse functions.
+
+```{r}
+function_for_step_1_2 <- function(infile, value_column_pattern = "D") {
+  file_selected <- infile |>
+    mutate(area_name = Area_name) |>
+    select(area_name, STCOU, ends_with(value_column_pattern))
+  
+  file_long <- file_selected |>
+    pivot_longer(
+      cols = ends_with(value_column_pattern),
+      names_to = "Enrollment",
+      values_to = "Value"
+    )
+  
+  return(file_long)
+}
+
+result1 <- function_for_step_1_2(file_2, value_column_pattern = "D")
+result1
+
+```
+
+Function for step 3 
+
+```{r}
+function_for_step_3 <- function(indata) {
+  file_formatted <- indata %>%
+    mutate(year = as.numeric(substr(x = as.character(Enrollment), start = 8, stop = 9))) %>%
+    mutate(year = if_else(condition = year > 24,
+                          true = paste("19", as.character(year), sep = ""),
+                          false = paste("20", as.character(year), sep = ""))) %>%
+    mutate(year = as.numeric(year))
+  
+  return(file_formatted)
+}
+formatted_result <- function_for_step_3(result1)
+formatted_result
+
+```
+
+Function for step 5
+
+```{r}
+extract_state_from_area_name <- function(inputdata) {
+  outputdt <- inputdata %>%
+    mutate(state = substr(area_name, start = nchar(area_name) - 1, stop = nchar(area_name)))
+  
+  return(outputdt)
+}
+```
+
+Function for step 6
+
+```{r}
+# Define the main function to apply the division function to a data frame
+assign_divisions <- function(indf) {
+  outdf <- indf %>%
+    mutate(division = sapply(area_name, division))
+  
+  return(outdf)
+}
+```
+
+Last function for split (step 4) and built in functions for steps 5 and 6
+
+```{r}
+function_for_steps4_5_6 <- function(indata) {
+  
+  f_county <- indata[grep(pattern = ", \\w\\w", indata$area_name, invert = FALSE),]
+  f_not_county <- indata[grep(pattern = ", \\w\\w", indata$area_name, invert = TRUE),]
+  
+    # Assign custom classes
+  class(f_county) <- c("county", class(f_county))
+  class(f_not_county) <- c("state", class(f_not_county))
+  
+  # Check the splits
+  print("f_county:")
+  print(head(f_county))
+  print("f_not_county:")
+  print(head(f_not_county))
+  
+  #use built in functions for steps 5 and 6
+  f_county_with_state <- extract_state_from_area_name(f_county)
+  f_not_county_with_divisions <- assign_divisions(f_not_county)
+  
+  return(list(f_county = f_county_with_state, 
+              f_not_county = f_not_county_with_divisions))
+}
+```
+
+Combine all steps together and run wrapper on both csv files
+
+```{r}
+my_wrapper <- function(url, col_pattern){
+  result <- read_csv(url) |>
+    function_for_step_1_2(value_column_pattern = col_pattern) |>
+    function_for_step_3() |>
+    function_for_steps4_5_6()
+  
+  #return final result
+  return(result)
+}
+
+#run wrapper
+#csv b
+res1 <- my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/EDU01b.csv", col_pattern = "D")
+res1
+
+#csv a
+res2 <- my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv", col_pattern = "D")
+res2
+```
+
+Write a function to combine results
+
+```{r}
+combine_results <- function(result1,result2){
+  
+  df1 <- bind_rows(result1$f_county,
+                   result2$f_county)
+  df2 <- bind_rows(result1$f_not_county,
+                   result2$f_not_county)
+  return(list(df1,df2))
+}
+
+final_results <- combine_results(res1,res2)
+final_results[[1]]
+final_results[[2]]
+```
+
 
 Template Leftover\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
