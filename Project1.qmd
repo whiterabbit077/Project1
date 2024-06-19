@@ -235,7 +235,7 @@ combine_results <- function(result1,result2){
                    result2$f_county)
   df2 <- bind_rows(result1$f_not_county,
                    result2$f_not_county)
-  return(list(df1,df2))
+  return(list(f_county=df1,f_not_county=df2))
 }
 
 final_results <- combine_results(res1,res2)
@@ -335,11 +335,81 @@ plot.county <- function(df, State = "NC", Order = "Top",n = 5, var_name = "Value
 plot(final_results[[1]])
 ```
 
-Template Leftover\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+Use the plot function on the county data frame with few more cases (plot with default values presented above): 
+a) Once specifying the state to be “NC”, the group being the top, the number looked at being 20
 
 ```{r}
-#| echo: false
-2 * 2
+plot(final_results[[1]],State = "NC", Order = "Top", n = 20)
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+b) Once specifying the state to be “SC”, the group being the bottom, the number looked at being 7
+
+```{r}
+plot(final_results[[1]], State = "SC", Order = "Bottom", n = 7)
+```
+
+
+c) Once specifying the state to be “PA”, the group being the top, the number looked at being 8
+
+```{r}
+plot(final_results[[1]], State = "PA", Order = "Top", n = 8)
+```
+
+## Final function application
+
+Run data processing function on the four data sets at 4 additional URLs 
+
+```{r}
+#run wrapper
+res_a <- my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/PST01a.csv", col_pattern = "D")
+
+res_b <- my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/PST01b.csv", col_pattern = "D")
+
+res_c <- my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/PST01c.csv", col_pattern = "D")
+
+res_d <- my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/PST01d.csv", col_pattern = "D")
+
+```
+
+Run data combining function to put these into one object
+
+```{r}
+final_results_1 <- combine_results(res_a,res_b)
+final_results_2 <- combine_results(res_c,res_d)
+
+f_results <- combine_results(final_results_1,final_results_2)
+f_results[[1]]
+f_results[[2]]
+```
+
+Use the plot function on the state data frame
+
+```{r}
+plot(f_results[[2]])
+```
+
+Plot function on the county data frame:
+a) Once specifying the state to be “CA”, the group being the top, the number looked at being 15
+
+```{r}
+plot(f_results[[1]], State = "CA", Order = "Top", n = 15 )
+```
+
+b) Once specifying the state to be “TX”, the group being the top, the number looked at being 4
+
+```{r}
+plot(f_results[[1]], State = "TX", Order = "Top", n = 4 )
+```
+
+
+c) Once without specifying anything (defaults used)
+
+```{r}
+plot(f_results[[1]])
+```
+
+d) Once specifying the state to be “NY”, the group being the top, the number looked at being 10
+
+```{r}
+plot(f_results[[1]], State = "NY", Order = "Top", n = 10)
+```
