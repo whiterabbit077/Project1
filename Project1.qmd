@@ -48,7 +48,7 @@ file_1_long <- file_1_selected %>%
 file_1_long
 ```
 
-Based on the schema, the enrollment column is formatted to extract a substring consisting of the 8th and 9th characters, representing the year. This substring extraction is vectorized using `substr()` within `mutate()`. Next, depending on whether the extracted year value is greater than 24, "20" or "19" is prefixed to the string using `if_else()`. Finally, the result is coerced to a numeric format using `as.numeric()`.
+Based on the schema, the enrollment column is formatted to extract a substring consisting of the 8th and 9th characters, representing the year. This substring extraction is vectorized using `substr()` within `mutate()`. Next, depending on whether the extracted year value is greater than 24, "200" or "19" is prefixed to the string using `if_else()`. Finally, the result is coerced to a numeric format using `as.numeric()`.
 
 ```{r}
 file_1_formatted <- file_1_long |>
@@ -60,20 +60,28 @@ file_1_formatted <- file_1_long |>
 file_1_formatted
 ```
 
+Selecting rows in `file_1_formatted` where the `area_name` column contains a pattern matching ", \\w\\w", and storing the result to `f1_county`.
+
 ```{r}
 f1_county <- file_1_formatted[grep(pattern = ", \\w\\w", file_1_formatted$area_name,invert = FALSE),]
 f1_county
 ```
+
+Selecting rows in `file_1_formatted` where the `area_name` column does not contain a pattern matching ", \\w\\w", and storing the result to `f1_county`. This was performed by setting the `invert` argument to be `TRUE` .
 
 ```{r}
 f1_not_county <- file_1_formatted[grep(pattern = ", \\w\\w", file_1_formatted$area_name,invert = TRUE),]
 f1_not_county
 ```
 
+Assigning the class `county` to `f1_county` and class `state` to `f1_not_county`. This will be used for making class specific functions later.
+
 ```{r}
 class(f1_county) <- c("county", class(f1_county))
 class(f1_not_county) <- c("state", class(f1_not_county))
 ```
+
+Determining the state for the county data set by extracting the last to characters from the `area_name` observations using `substr()` . The character index (required for `start=` and `stop=` argument) in the character string is determined using `nchar()` .
 
 ```{r}
 f1_county <- f1_county |>
@@ -81,6 +89,8 @@ f1_county <- f1_county |>
 
 f1_county
 ```
+
+Creating a function `division` that maps the state to the corresponding Division defined by the Census Bureau. The function is created based on multiple if/else if logical statements using `case_when()` . Then vectorizing the function by applying it within `sapply()` in the chain. This results in a new column, where the division is assisgned based on the state in the `area_name` column.
 
 ```{r}
 # Defining the division function
@@ -99,20 +109,22 @@ division <- function(state) {
   )
 }
 
-# Vectorize the function to apply to a column of states
+# Vectorizing the function to apply to a column of states
 f1_not_county <- f1_not_county |>
   mutate(division = sapply(area_name, division))
 f1_not_county
 ```
 
-Read dataset 2
+#### Creating Functions
+
+In this step, we are creating functions, that perform the same data processing steps as above on a new dataset with similar schema. Firstly, reading `file_2` from the url provided.
 
 ```{r}
 file_2 <- read_csv("https://www4.stat.ncsu.edu/~online/datasets/EDU01b.csv")
 head(file_2)
 ```
 
-Write a function for tasks 1 and 2. We'll be using the {{ }} operator, also known as curly-curly, that is used to capture and unquote arguments in tidy evaluation. It is a way to pass expressions directly into tidyverse functions.
+Creating a function `function_for_step_1_2` to perform step 1 and 2 as above. Here columns are selected based on a pattern defined by `value_column_pattern`. The selected file is then transformed into a long format (`file_long`) using `pivot_longer()`, mapping columns to "Enrollment" and their corresponding values to "Value". The resultant data frame (`file_long`) is returned by the function. This will be the input for next function.
 
 ```{r}
 function_for_step_1_2 <- function(infile, value_column_pattern = "D") {
@@ -131,11 +143,11 @@ function_for_step_1_2 <- function(infile, value_column_pattern = "D") {
 }
 
 result1 <- function_for_step_1_2(file_2, value_column_pattern = "D")
-result1
+result1 #Preview
 
 ```
 
-Function for step 3
+The function `function_for_step_3` is currently transforming data by adding a `year` column derived from the `Enrollment` column. First, it converts `Enrollment` to a character type and extracts the year portion using `substr()`. Then, it conditions the `year` values: if greater than 24, it prefixes "19" to form a four-digit year; otherwise, it prefixes "200" to make it a four-digit year. Finally, it converts `year` back to numeric type. The formatted data frame (`file_formatted`) is returned by the function. After applying `function_for_step_3` to `result1`, the dataset is stored in `formatted_result` .
 
 ```{r}
 function_for_step_3 <- function(indata) {
@@ -153,7 +165,7 @@ formatted_result
 
 ```
 
-Function for step 5
+The function `extract_state_from_area_name` can process class `county` data to derive a new `state` column. It achieves this by extracting a substring from the `area_name` column, specifically starting from two characters before the end (`nchar(area_name) - 1`) to the end (`nchar(area_name)`). Returns a new data frame which has the newly added `state` column .
 
 ```{r}
 extract_state_from_area_name <- function(inputdata) {
@@ -164,10 +176,10 @@ extract_state_from_area_name <- function(inputdata) {
 }
 ```
 
-Function for step 6
+`assign_divisions` is a vectorized function which can assign the division to the class `state` data based on `area_name`.
 
 ```{r}
-# Define the main function to apply the division function to a data frame
+# Defines the main function to apply the division function to a data frame
 assign_divisions <- function(indf) {
   outdf <- indf %>%
     mutate(division = sapply(area_name, division))
@@ -176,7 +188,24 @@ assign_divisions <- function(indf) {
 }
 ```
 
-Last function for split (step 4) and built in functions for steps 5 and 6
+The function `function_for_steps4_5_6` can be used to perform steps 4 5 and 6.:
+
+1.  It filters data into two separate data frames using the pattern ", \\w\\w" :
+
+    -   `f_county`: Contains rows where `area_name` matches the pattern ", \\w\\w".
+    -   `f_not_county`: Contains rows where `area_name` does not match the pattern.
+
+2.  Custom classes are assigned to each filtered data frame:
+
+    -   `f_county` is assigned the class "county".
+    -   `f_not_county` is assigned the class "state".
+
+3.  It then applies previously created functions for steps 5 and 6 to apply transforms separately :
+
+    -   `f_county_with_state` is derived by applying `extract_state_from_area_name()` to `f_county`.
+    -   `f_not_county_with_divisions` is derived by applying `assign_divisions()` to `f_not_county`.
+
+4.  Finally, the function returns a list containing `f_county_with_state` and `f_not_county_with_divisions`.
 
 ```{r}
 function_for_steps4_5_6 <- function(indata) {
@@ -203,7 +232,7 @@ function_for_steps4_5_6 <- function(indata) {
 }
 ```
 
-Combine all steps together and run wrapper on both csv files
+Combining all functions together into a wrapper function on both csv files
 
 ```{r}
 my_wrapper <- function(url, col_pattern){
@@ -226,7 +255,7 @@ res2 <- my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv", col
 res2
 ```
 
-Write a function to combine results
+Creating a function with `bind_rows()` to combine files after applying the wrapper function.
 
 ```{r}
 combine_results <- function(result1,result2){
@@ -239,8 +268,8 @@ combine_results <- function(result1,result2){
 }
 
 final_results <- combine_results(res1,res2)
-final_results[[1]]
-final_results[[2]]
+final_results[[1]] #County
+final_results[[2]]#State
 ```
 
 ### Writing a Generic Function for Summarizing
@@ -252,7 +281,7 @@ Creating a function that is assigned to class state . So by calling an object of
 ```{r}
 plot.state <- function(df, var_name = "Value",statistic = "mean"){
   
-  #Putiing in an if else operator to return a message if the supplied variable is not in the df columns
+  #Putting in an if else operator to return a message if the supplied variable is not in the df columns
   if (var_name %in% colnames(df)){
     columnname <- paste(var_name,statistic,sep = "_")
   
@@ -291,7 +320,7 @@ Creating a function that is assigned to class county . So by calling an object o
 ```{r}
 plot.county <- function(df, State = "NC", Order = "Top",n = 5, var_name = "Value",statistic = "mean"){
   
-  #Putiing in an if else operator to return a message if the supplied variable is not in the df columns
+  #Puting in an if else operator to return a message if the supplied variable is not in the df columns
   if (var_name %in% colnames(df) & State %in% df$state){
     columnname <- paste(var_name,statistic,sep = "_")
     #Extracting the summary statistic from the provided string
@@ -313,11 +342,14 @@ plot.county <- function(df, State = "NC", Order = "Top",n = 5, var_name = "Value
     arrange(columnname_sorted) |>
     select(-columnname_sorted)  
   
-    
+    #Getting a list of first n counties based on increasing/decreasing mean
     first_n_counties <- summary_df$area_name[1:n]
+    
+    #Subletting the original df to only yield the top/bottom n county data
     first_n_subset <- df |>
       filter(area_name %in% first_n_counties)
-    #Creating a line plot using the obtained summary df
+    
+    #Creating a line plot from the Top/Bottom n subset
     p <- ggplot(data = first_n_subset,aes(x = year,y = Value))  +
       geom_line(aes(color = area_name))
     
@@ -335,21 +367,21 @@ plot.county <- function(df, State = "NC", Order = "Top",n = 5, var_name = "Value
 plot(final_results[[1]])
 ```
 
-Use the plot function on the county data frame with few more cases (plot with default values presented above): 
-a) Once specifying the state to be “NC”, the group being the top, the number looked at being 20
+### Put it Together
+
+-   Use the plot function on the county data frame with few more cases (plot with default values presented above): a) Once specifying the state to be "NC", the group being the top, the number looked at being 20
 
 ```{r}
 plot(final_results[[1]],State = "NC", Order = "Top", n = 20)
 ```
 
-b) Once specifying the state to be “SC”, the group being the bottom, the number looked at being 7
+b)  Once specifying the state to be "SC", the group being the bottom, the number looked at being 7
 
 ```{r}
 plot(final_results[[1]], State = "SC", Order = "Bottom", n = 7)
 ```
 
-
-c) Once specifying the state to be “PA”, the group being the top, the number looked at being 8
+c)  Once specifying the state to be "PA", the group being the top, the number looked at being 8
 
 ```{r}
 plot(final_results[[1]], State = "PA", Order = "Top", n = 8)
@@ -357,7 +389,7 @@ plot(final_results[[1]], State = "PA", Order = "Top", n = 8)
 
 ## Final function application
 
-Run data processing function on the four data sets at 4 additional URLs 
+Run data processing function on the four data sets at 4 additional URLs
 
 ```{r}
 #run wrapper
@@ -388,27 +420,25 @@ Use the plot function on the state data frame
 plot(f_results[[2]])
 ```
 
-Plot function on the county data frame:
-a) Once specifying the state to be “CA”, the group being the top, the number looked at being 15
+Plot function on the county data frame: a). Once specifying the state to be "CA", the group being the top, the number looked at being 15
 
 ```{r}
 plot(f_results[[1]], State = "CA", Order = "Top", n = 15 )
 ```
 
-b) Once specifying the state to be “TX”, the group being the top, the number looked at being 4
+b)  Once specifying the state to be "TX", the group being the top, the number looked at being 4
 
 ```{r}
 plot(f_results[[1]], State = "TX", Order = "Top", n = 4 )
 ```
 
-
-c) Once without specifying anything (defaults used)
+c)  Once without specifying anything (defaults used)
 
 ```{r}
 plot(f_results[[1]])
 ```
 
-d) Once specifying the state to be “NY”, the group being the top, the number looked at being 10
+d)  Once specifying the state to be "NY", the group being the top, the number looked at being 10
 
 ```{r}
 plot(f_results[[1]], State = "NY", Order = "Top", n = 10)
