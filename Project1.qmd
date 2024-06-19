@@ -55,7 +55,7 @@ file_1_formatted <- file_1_long |>
   mutate(year = as.numeric(substr(x =as.character(Enrollment),start = 8,stop = 9 )))|>
   mutate(year = if_else(condition = year>24,
                         true = paste("19",as.character(year),sep = "") ,
-                        false = paste("20",as.character(year),sep = ""))) |>
+                        false = paste("200",as.character(year),sep = ""))) |>
   mutate(year = as.numeric(year))
 file_1_formatted
 ```
@@ -135,7 +135,7 @@ result1
 
 ```
 
-Function for step 3 
+Function for step 3
 
 ```{r}
 function_for_step_3 <- function(indata) {
@@ -143,7 +143,7 @@ function_for_step_3 <- function(indata) {
     mutate(year = as.numeric(substr(x = as.character(Enrollment), start = 8, stop = 9))) %>%
     mutate(year = if_else(condition = year > 24,
                           true = paste("19", as.character(year), sep = ""),
-                          false = paste("20", as.character(year), sep = ""))) %>%
+                          false = paste("200", as.character(year), sep = ""))) %>%
     mutate(year = as.numeric(year))
   
   return(file_formatted)
@@ -243,6 +243,97 @@ final_results[[1]]
 final_results[[2]]
 ```
 
+### Writing a Generic Function for Summarizing
+
+#### First Steps
+
+Creating a function that is assigned to class state . So by calling an object of class state within plot() function yields line plots of mean enrollment value of each division across years.
+
+```{r}
+plot.state <- function(df, var_name = "Value",statistic = "mean"){
+  
+  #Putiing in an if else operator to return a message if the supplied variable is not in the df columns
+  if (var_name %in% colnames(df)){
+    columnname <- paste(var_name,statistic,sep = "_")
+  
+  #Extracting the summary statistic from the provided string
+  func <- get(statistic)
+  
+  #Data Manipulations to obtain summary statistic
+  summary_df  <- df |>
+    select(var_name,division,year) |>
+    filter(division != "ERROR" ) |>
+    mutate(year = as.character(year)) |>
+    group_by(year,division) |>
+    summarise(columnname = func(get(var_name))) |>
+    mutate(year= as.numeric(year))
+  
+  #Creating a line plot using the obtained summary df
+  p <- ggplot(data = summary_df, aes(x = year,y = columnname)) +
+    geom_line(aes(color=division)) +
+    ylab(paste(var_name,statistic,sep = "_"))
+  
+  
+  return(p)
+  } else {
+    "Variable not in the input dataset."
+  }
+  
+}
+```
+
+```{r}
+plot(final_results[[2]])
+```
+
+Creating a function that is assigned to class county . So by calling an object of class county within plot() function yields line plots of enrollment value of first n counties across years.
+
+```{r}
+plot.county <- function(df, State = "NC", Order = "Top",n = 5, var_name = "Value",statistic = "mean"){
+  
+  #Putiing in an if else operator to return a message if the supplied variable is not in the df columns
+  if (var_name %in% colnames(df) & State %in% df$state){
+    columnname <- paste(var_name,statistic,sep = "_")
+    #Extracting the summary statistic from the provided string
+    func <- get(statistic)
+    
+    #Data Manipulations to obtain summary statistic
+    summary_df <- df |>
+    select(var_name, state, year, area_name) |>
+    filter(state == State) |>
+    group_by(area_name) |>
+    summarise(columnname = func(get(var_name))) |>
+    mutate(
+      columnname_sorted = case_when(
+        Order == "Top"    ~ desc(columnname),
+        Order == "Bottom" ~ columnname,
+        TRUE              ~ NA_real_  # Handle other cases if needed
+      )
+    ) |>
+    arrange(columnname_sorted) |>
+    select(-columnname_sorted)  
+  
+    
+    first_n_counties <- summary_df$area_name[1:n]
+    first_n_subset <- df |>
+      filter(area_name %in% first_n_counties)
+    #Creating a line plot using the obtained summary df
+    p <- ggplot(data = first_n_subset,aes(x = year,y = Value))  +
+      geom_line(aes(color = area_name))
+    
+    return(p)
+  
+  
+  } else {
+    "Variable not in the input dataset."
+  }
+  
+}
+```
+
+```{r}
+plot(final_results[[1]])
+```
 
 Template Leftover\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
