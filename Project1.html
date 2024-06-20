@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Anna Giczewska, Smit Miyani">
 
-<title>Project1</title>
+<title>Project 1</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -79,13 +80,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Project1</h1>
+<h1 class="title">Project 1</h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Anna Giczewska, Smit Miyani </p>
+          </div>
+  </div>
     
   
     
@@ -100,8 +107,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="data-processing" class="level3">
 <h3 class="anchored" data-anchor-id="data-processing">Data Processing</h3>
-<section id="first-steps" class="level4">
-<h4 class="anchored" data-anchor-id="first-steps">First Steps</h4>
+<section id="isolated-data-processing-steps" class="level4">
+<h4 class="anchored" data-anchor-id="isolated-data-processing-steps">Isolated Data Processing Steps</h4>
 <p>The first step requires retuning specific columns from full set. This is made easier using the <code>tidyverse</code> packages. Loading the <code>tidyverse</code> packages using <code>require()</code> .</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -207,7 +214,7 @@ dbl (20): EDU010187F, EDU010187D, EDU010188F, EDU010188D, EDU010189F, EDU010...
 # ℹ 31,970 more rows</code></pre>
 </div>
 </div>
-<p>Based on the schema, the enrollment column is formatted to extract a substring consisting of the 8th and 9th characters, representing the year. This substring extraction is vectorized using <code>substr()</code> within <code>mutate()</code>. Next, depending on whether the extracted year value is greater than 24, “20” or “19” is prefixed to the string using <code>if_else()</code>. Finally, the result is coerced to a numeric format using <code>as.numeric()</code>.</p>
+<p>Based on the schema, the enrollment column is formatted to extract a substring consisting of the 8th and 9th characters, representing the year. This substring extraction is vectorized using <code>substr()</code> within <code>mutate()</code>. Next, depending on whether the extracted year value is greater than 24, “200” or “19” is prefixed to the string using <code>if_else()</code>. Finally, the result is coerced to a numeric format using <code>as.numeric()</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>file_1_formatted <span class="ot">&lt;-</span> file_1_long <span class="sc">|&gt;</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">as.numeric</span>(<span class="fu">substr</span>(<span class="at">x =</span><span class="fu">as.character</span>(Enrollment),<span class="at">start =</span> <span class="dv">8</span>,<span class="at">stop =</span> <span class="dv">9</span> )))<span class="sc">|&gt;</span></span>
@@ -233,6 +240,7 @@ dbl (20): EDU010187F, EDU010187D, EDU010188F, EDU010188D, EDU010189F, EDU010...
 # ℹ 31,970 more rows</code></pre>
 </div>
 </div>
+<p>Selecting rows in <code>file_1_formatted</code> where the <code>area_name</code> column contains a pattern matching “, \w\w”, and storing the result to <code>f1_county</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>f1_county <span class="ot">&lt;-</span> file_1_formatted[<span class="fu">grep</span>(<span class="at">pattern =</span> <span class="st">", </span><span class="sc">\\</span><span class="st">w</span><span class="sc">\\</span><span class="st">w"</span>, file_1_formatted<span class="sc">$</span>area_name,<span class="at">invert =</span> <span class="cn">FALSE</span>),]</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>f1_county</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -253,6 +261,7 @@ dbl (20): EDU010187F, EDU010187D, EDU010188F, EDU010188D, EDU010189F, EDU010...
 # ℹ 31,440 more rows</code></pre>
 </div>
 </div>
+<p>Selecting rows in <code>file_1_formatted</code> where the <code>area_name</code> column does not contain a pattern matching “, \w\w”, and storing the result to <code>f1_county</code>. This was performed by setting the <code>invert</code> argument to be <code>TRUE</code> .</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>f1_not_county <span class="ot">&lt;-</span> file_1_formatted[<span class="fu">grep</span>(<span class="at">pattern =</span> <span class="st">", </span><span class="sc">\\</span><span class="st">w</span><span class="sc">\\</span><span class="st">w"</span>, file_1_formatted<span class="sc">$</span>area_name,<span class="at">invert =</span> <span class="cn">TRUE</span>),]</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>f1_not_county</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -273,10 +282,12 @@ dbl (20): EDU010187F, EDU010187D, EDU010188F, EDU010188D, EDU010189F, EDU010...
 # ℹ 520 more rows</code></pre>
 </div>
 </div>
+<p>Assigning the class <code>county</code> to <code>f1_county</code> and class <code>state</code> to <code>f1_not_county</code>. This will be used for making class specific functions later.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(f1_county) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"county"</span>, <span class="fu">class</span>(f1_county))</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(f1_not_county) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"state"</span>, <span class="fu">class</span>(f1_not_county))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Determining the state for the county data set by extracting the last to characters from the <code>area_name</code> observations using <code>substr()</code> . The character index (required for <code>start=</code> and <code>stop=</code> argument) in the character string is determined using <code>nchar()</code> .</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>f1_county <span class="ot">&lt;-</span> f1_county <span class="sc">|&gt;</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">state =</span> <span class="fu">substr</span>(area_name, <span class="at">start =</span> <span class="fu">nchar</span>(area_name) <span class="sc">-</span> <span class="dv">1</span>, <span class="at">stop =</span> <span class="fu">nchar</span>(area_name)))</span>
@@ -299,6 +310,7 @@ dbl (20): EDU010187F, EDU010187D, EDU010188F, EDU010188D, EDU010189F, EDU010...
 # ℹ 31,440 more rows</code></pre>
 </div>
 </div>
+<p>Creating a function <code>division</code> that maps the state to the corresponding Division defined by the Census Bureau. The function is created based on multiple if/else if logical statements using <code>case_when()</code> . Then vectorizing the function by applying it within <code>sapply()</code> in the chain. This results in a new column, where the division is assisgned based on the state in the <code>area_name</code> column.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Defining the division function</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>division <span class="ot">&lt;-</span> <span class="cf">function</span>(state) {</span>
@@ -316,7 +328,7 @@ dbl (20): EDU010187F, EDU010187D, EDU010188F, EDU010188D, EDU010189F, EDU010...
 <span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Vectorize the function to apply to a column of states</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Vectorizing the function to apply to a column of states</span></span>
 <span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>f1_not_county <span class="ot">&lt;-</span> f1_not_county <span class="sc">|&gt;</span></span>
 <span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">division =</span> <span class="fu">sapply</span>(area_name, division))</span>
 <span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>f1_not_county</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -337,7 +349,10 @@ dbl (20): EDU010187F, EDU010187D, EDU010188F, EDU010188D, EDU010189F, EDU010...
 # ℹ 520 more rows</code></pre>
 </div>
 </div>
-<p>Read dataset 2</p>
+</section>
+<section id="developing-functions-for-data-processing" class="level4">
+<h4 class="anchored" data-anchor-id="developing-functions-for-data-processing">Developing Functions for Data Processing</h4>
+<p>In this step, we are creating functions, that perform the same data processing steps as above on a new dataset with similar schema. Firstly, reading <code>file_2</code> from the url provided.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>file_2 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://www4.stat.ncsu.edu/~online/datasets/EDU01b.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -370,7 +385,7 @@ dbl (20): EDU010197F, EDU010197D, EDU010198F, EDU010198D, EDU010199F, EDU010...
 #   EDU015204F &lt;dbl&gt;, EDU015204D &lt;dbl&gt;, EDU015204N1 &lt;chr&gt;, EDU015204N2 &lt;chr&gt;, …</code></pre>
 </div>
 </div>
-<p>Write a function for tasks 1 and 2. We’ll be using the {{ }} operator, also known as curly-curly, that is used to capture and unquote arguments in tidy evaluation. It is a way to pass expressions directly into tidyverse functions.</p>
+<p>Creating a function <code>function_for_step_1_2</code> to perform step 1 and 2 as above. Here columns are selected based on a pattern defined by <code>value_column_pattern</code>. The selected file is then transformed into a long format (<code>file_long</code>) using <code>pivot_longer()</code>, mapping columns to “Enrollment” and their corresponding values to “Value”. The resultant data frame (<code>file_long</code>) is returned by the function. This will be the input for next function.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>function_for_step_1_2 <span class="ot">&lt;-</span> <span class="cf">function</span>(infile, <span class="at">value_column_pattern =</span> <span class="st">"D"</span>) {</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  file_selected <span class="ot">&lt;-</span> infile <span class="sc">|&gt;</span></span>
@@ -388,7 +403,7 @@ dbl (20): EDU010197F, EDU010197D, EDU010198F, EDU010198D, EDU010199F, EDU010...
 <span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>result1 <span class="ot">&lt;-</span> <span class="fu">function_for_step_1_2</span>(file_2, <span class="at">value_column_pattern =</span> <span class="st">"D"</span>)</span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>result1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>result1 <span class="co">#Preview</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 31,980 × 4
    area_name     STCOU Enrollment    Value
@@ -406,7 +421,7 @@ dbl (20): EDU010197F, EDU010197D, EDU010198F, EDU010198D, EDU010199F, EDU010...
 # ℹ 31,970 more rows</code></pre>
 </div>
 </div>
-<p>Function for step 3</p>
+<p>The function <code>function_for_step_3</code> is currently transforming data by adding a <code>year</code> column derived from the <code>Enrollment</code> column. First, it converts <code>Enrollment</code> to a character type and extracts the year portion using <code>substr()</code>. Then, it conditions the <code>year</code> values: if greater than 24, it prefixes “19” to form a four-digit year; otherwise, it prefixes “200” to make it a four-digit year. Finally, it converts <code>year</code> back to numeric type. The formatted data frame (<code>file_formatted</code>) is returned by the function. After applying <code>function_for_step_3</code> to <code>result1</code>, the dataset is stored in <code>formatted_result</code> .</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>function_for_step_3 <span class="ot">&lt;-</span> <span class="cf">function</span>(indata) {</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  file_formatted <span class="ot">&lt;-</span> indata <span class="sc">%&gt;%</span></span>
@@ -437,7 +452,7 @@ dbl (20): EDU010197F, EDU010197D, EDU010198F, EDU010198D, EDU010199F, EDU010...
 # ℹ 31,970 more rows</code></pre>
 </div>
 </div>
-<p>Function for step 5</p>
+<p>The function <code>extract_state_from_area_name</code> can process class <code>county</code> data to derive a new <code>state</code> column. It achieves this by extracting a substring from the <code>area_name</code> column, specifically starting from two characters before the end (<code>nchar(area_name) - 1</code>) to the end (<code>nchar(area_name)</code>). Returns a new data frame which has the newly added <code>state</code> column .</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>extract_state_from_area_name <span class="ot">&lt;-</span> <span class="cf">function</span>(inputdata) {</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  outputdt <span class="ot">&lt;-</span> inputdata <span class="sc">%&gt;%</span></span>
@@ -446,9 +461,9 @@ dbl (20): EDU010197F, EDU010197D, EDU010198F, EDU010198D, EDU010199F, EDU010...
 <span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(outputdt)</span>
 <span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Function for step 6</p>
+<p><code>assign_divisions</code> is a vectorized function which can assign the division to the class <code>state</code> data based on <code>area_name</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the main function to apply the division function to a data frame</span></span>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Defines the main function to apply the division function to a data frame</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>assign_divisions <span class="ot">&lt;-</span> <span class="cf">function</span>(indf) {</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  outdf <span class="ot">&lt;-</span> indf <span class="sc">%&gt;%</span></span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">division =</span> <span class="fu">sapply</span>(area_name, division))</span>
@@ -456,7 +471,25 @@ dbl (20): EDU010197F, EDU010197D, EDU010198F, EDU010198D, EDU010199F, EDU010...
 <span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(outdf)</span>
 <span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Last function for split (step 4) and built in functions for steps 5 and 6</p>
+<p>The function <code>function_for_steps4_5_6</code> can be used to perform steps 4 5 and 6.:</p>
+<ol type="1">
+<li><p>It filters data into two separate data frames using the pattern “, \w\w” :</p>
+<ul>
+<li><code>f_county</code>: Contains rows where <code>area_name</code> matches the pattern “, \w\w”.</li>
+<li><code>f_not_county</code>: Contains rows where <code>area_name</code> does not match the pattern.</li>
+</ul></li>
+<li><p>Custom classes are assigned to each filtered data frame:</p>
+<ul>
+<li><code>f_county</code> is assigned the class “county”.</li>
+<li><code>f_not_county</code> is assigned the class “state”.</li>
+</ul></li>
+<li><p>It then applies previously created functions for steps 5 and 6 to apply transforms separately :</p>
+<ul>
+<li><code>f_county_with_state</code> is derived by applying <code>extract_state_from_area_name()</code> to <code>f_county</code>.</li>
+<li><code>f_not_county_with_divisions</code> is derived by applying <code>assign_divisions()</code> to <code>f_not_county</code>.</li>
+</ul></li>
+<li><p>Finally, the function returns a list containing <code>f_county_with_state</code> and <code>f_not_county_with_divisions</code>.</p></li>
+</ol>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>function_for_steps4_5_6 <span class="ot">&lt;-</span> <span class="cf">function</span>(indata) {</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  </span>
@@ -481,7 +514,7 @@ dbl (20): EDU010197F, EDU010197D, EDU010198F, EDU010198D, EDU010199F, EDU010...
 <span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>              <span class="at">f_not_county =</span> f_not_county_with_divisions))</span>
 <span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Combine all steps together and run wrapper on both csv files</p>
+<p>Combining all functions together into a wrapper function on both csv files</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>my_wrapper <span class="ot">&lt;-</span> <span class="cf">function</span>(url, col_pattern){</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  result <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(url) <span class="sc">|&gt;</span></span>
@@ -631,7 +664,7 @@ $f_not_county
 # ℹ 520 more rows</code></pre>
 </div>
 </div>
-<p>Write a function to combine results</p>
+<p>Creating a function with <code>bind_rows()</code> to combine files after applying the wrapper function.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>combine_results <span class="ot">&lt;-</span> <span class="cf">function</span>(result1,result2){</span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  </span>
@@ -643,7 +676,7 @@ $f_not_county
 <span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>final_results <span class="ot">&lt;-</span> <span class="fu">combine_results</span>(res1,res2)</span>
-<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>final_results[[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>final_results[[<span class="dv">1</span>]] <span class="co">#County</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 62,900 × 6
    area_name   STCOU Enrollment Value  year state
@@ -660,7 +693,7 @@ $f_not_county
 10 Autauga, AL 01001 EDU015206D  9652  2006 AL   
 # ℹ 62,890 more rows</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>final_results[[<span class="dv">2</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>final_results[[<span class="dv">2</span>]]<span class="co">#State</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,060 × 6
    area_name     STCOU Enrollment    Value  year division
@@ -680,15 +713,15 @@ $f_not_county
 </div>
 </section>
 </section>
-<section id="writing-a-generic-function-for-summarizing" class="level3">
-<h3 class="anchored" data-anchor-id="writing-a-generic-function-for-summarizing">Writing a Generic Function for Summarizing</h3>
-<section id="first-steps-1" class="level4">
-<h4 class="anchored" data-anchor-id="first-steps-1">First Steps</h4>
+<section id="writing-a-generic-function-for-summarizing-data" class="level3">
+<h3 class="anchored" data-anchor-id="writing-a-generic-function-for-summarizing-data">Writing a Generic Function for Summarizing Data</h3>
+<section id="creating-plotting-functions" class="level4">
+<h4 class="anchored" data-anchor-id="creating-plotting-functions">Creating Plotting Functions</h4>
 <p>Creating a function that is assigned to class state . So by calling an object of class state within plot() function yields line plots of mean enrollment value of each division across years.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>plot.state <span class="ot">&lt;-</span> <span class="cf">function</span>(df, <span class="at">var_name =</span> <span class="st">"Value"</span>,<span class="at">statistic =</span> <span class="st">"mean"</span>){</span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#Putiing in an if else operator to return a message if the supplied variable is not in the df columns</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#Putting in an if else operator to return a message if the supplied variable is not in the df columns</span></span>
 <span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (var_name <span class="sc">%in%</span> <span class="fu">colnames</span>(df)){</span>
 <span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>    columnname <span class="ot">&lt;-</span> <span class="fu">paste</span>(var_name,statistic,<span class="at">sep =</span> <span class="st">"_"</span>)</span>
 <span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>  </span>
@@ -742,7 +775,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <div class="cell">
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>plot.county <span class="ot">&lt;-</span> <span class="cf">function</span>(df, <span class="at">State =</span> <span class="st">"NC"</span>, <span class="at">Order =</span> <span class="st">"Top"</span>,<span class="at">n =</span> <span class="dv">5</span>, <span class="at">var_name =</span> <span class="st">"Value"</span>,<span class="at">statistic =</span> <span class="st">"mean"</span>){</span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#Putiing in an if else operator to return a message if the supplied variable is not in the df columns</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#Puting in an if else operator to return a message if the supplied variable is not in the df columns</span></span>
 <span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (var_name <span class="sc">%in%</span> <span class="fu">colnames</span>(df) <span class="sc">&amp;</span> State <span class="sc">%in%</span> df<span class="sc">$</span>state){</span>
 <span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>    columnname <span class="ot">&lt;-</span> <span class="fu">paste</span>(var_name,statistic,<span class="at">sep =</span> <span class="st">"_"</span>)</span>
 <span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Extracting the summary statistic from the provided string</span></span>
@@ -764,22 +797,25 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <span id="cb52-22"><a href="#cb52-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(columnname_sorted) <span class="sc">|&gt;</span></span>
 <span id="cb52-23"><a href="#cb52-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">-</span>columnname_sorted)  </span>
 <span id="cb52-24"><a href="#cb52-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb52-25"><a href="#cb52-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb52-25"><a href="#cb52-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Getting a list of first n counties based on increasing/decreasing mean</span></span>
 <span id="cb52-26"><a href="#cb52-26" aria-hidden="true" tabindex="-1"></a>    first_n_counties <span class="ot">&lt;-</span> summary_df<span class="sc">$</span>area_name[<span class="dv">1</span><span class="sc">:</span>n]</span>
-<span id="cb52-27"><a href="#cb52-27" aria-hidden="true" tabindex="-1"></a>    first_n_subset <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span></span>
-<span id="cb52-28"><a href="#cb52-28" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(area_name <span class="sc">%in%</span> first_n_counties)</span>
-<span id="cb52-29"><a href="#cb52-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Creating a line plot using the obtained summary df</span></span>
-<span id="cb52-30"><a href="#cb52-30" aria-hidden="true" tabindex="-1"></a>    p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> first_n_subset,<span class="fu">aes</span>(<span class="at">x =</span> year,<span class="at">y =</span> Value))  <span class="sc">+</span></span>
-<span id="cb52-31"><a href="#cb52-31" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">color =</span> area_name))</span>
-<span id="cb52-32"><a href="#cb52-32" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb52-33"><a href="#cb52-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(p)</span>
-<span id="cb52-34"><a href="#cb52-34" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb52-35"><a href="#cb52-35" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb52-36"><a href="#cb52-36" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb52-37"><a href="#cb52-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Variable not in the input dataset."</span></span>
-<span id="cb52-38"><a href="#cb52-38" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb52-39"><a href="#cb52-39" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb52-40"><a href="#cb52-40" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb52-27"><a href="#cb52-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb52-28"><a href="#cb52-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Subletting the original df to only yield the top/bottom n county data</span></span>
+<span id="cb52-29"><a href="#cb52-29" aria-hidden="true" tabindex="-1"></a>    first_n_subset <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span></span>
+<span id="cb52-30"><a href="#cb52-30" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(area_name <span class="sc">%in%</span> first_n_counties)</span>
+<span id="cb52-31"><a href="#cb52-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb52-32"><a href="#cb52-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Creating a line plot from the Top/Bottom n subset</span></span>
+<span id="cb52-33"><a href="#cb52-33" aria-hidden="true" tabindex="-1"></a>    p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> first_n_subset,<span class="fu">aes</span>(<span class="at">x =</span> year,<span class="at">y =</span> Value))  <span class="sc">+</span></span>
+<span id="cb52-34"><a href="#cb52-34" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">color =</span> area_name))</span>
+<span id="cb52-35"><a href="#cb52-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb52-36"><a href="#cb52-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(p)</span>
+<span id="cb52-37"><a href="#cb52-37" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb52-38"><a href="#cb52-38" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb52-39"><a href="#cb52-39" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb52-40"><a href="#cb52-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Variable not in the input dataset."</span></span>
+<span id="cb52-41"><a href="#cb52-41" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb52-42"><a href="#cb52-42" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb52-43"><a href="#cb52-43" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(final_results[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -787,25 +823,31 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <p><img src="Project1_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Use the plot function on the county data frame with few more cases (plot with default values presented above): a) Once specifying the state to be “NC”, the group being the top, the number looked at being 20</p>
+</section>
+<section id="custom-plot-function-implementation" class="level4">
+<h4 class="anchored" data-anchor-id="custom-plot-function-implementation">Custom Plot Function Implementation</h4>
+<p>Use the plot function on the county data frame with few more cases (plot with default values presented above):</p>
+<ul>
+<li>Once specifying the state to be “NC”, the group being the top, the number looked at being 20</li>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(final_results[[<span class="dv">1</span>]],<span class="at">State =</span> <span class="st">"NC"</span>, <span class="at">Order =</span> <span class="st">"Top"</span>, <span class="at">n =</span> <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Project1_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<ol start="2" type="a">
+<ul>
 <li>Once specifying the state to be “SC”, the group being the bottom, the number looked at being 7</li>
-</ol>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(final_results[[<span class="dv">1</span>]], <span class="at">State =</span> <span class="st">"SC"</span>, <span class="at">Order =</span> <span class="st">"Bottom"</span>, <span class="at">n =</span> <span class="dv">7</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Project1_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<ol start="3" type="a">
+<ul>
 <li>Once specifying the state to be “PA”, the group being the top, the number looked at being 8</li>
-</ol>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(final_results[[<span class="dv">1</span>]], <span class="at">State =</span> <span class="st">"PA"</span>, <span class="at">Order =</span> <span class="st">"Top"</span>, <span class="at">n =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -814,8 +856,8 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 </div>
 </section>
 </section>
-<section id="final-function-application" class="level2">
-<h2 class="anchored" data-anchor-id="final-function-application">Final function application</h2>
+<section id="final-implementation-of-functions" class="level2">
+<h2 class="anchored" data-anchor-id="final-implementation-of-functions">Final Implementation of Functions</h2>
 <p>Run data processing function on the four data sets at 4 additional URLs</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co">#run wrapper</span></span>
@@ -1004,34 +1046,37 @@ dbl (20): PST045200F, PST045200D, PST045201F, PST045201D, PST045202F, PST045...
 <p><img src="Project1_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Plot function on the county data frame: a) Once specifying the state to be “CA”, the group being the top, the number looked at being 15</p>
+<p>Plot function on the county data frame:</p>
+<ul>
+<li>Once specifying the state to be “CA”, the group being the top, the number looked at being 15</li>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(f_results[[<span class="dv">1</span>]], <span class="at">State =</span> <span class="st">"CA"</span>, <span class="at">Order =</span> <span class="st">"Top"</span>, <span class="at">n =</span> <span class="dv">15</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Project1_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<ol start="2" type="a">
+<ul>
 <li>Once specifying the state to be “TX”, the group being the top, the number looked at being 4</li>
-</ol>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(f_results[[<span class="dv">1</span>]], <span class="at">State =</span> <span class="st">"TX"</span>, <span class="at">Order =</span> <span class="st">"Top"</span>, <span class="at">n =</span> <span class="dv">4</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Project1_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<ol start="3" type="a">
+<ul>
 <li>Once without specifying anything (defaults used)</li>
-</ol>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(f_results[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Project1_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<ol start="4" type="a">
+<ul>
 <li>Once specifying the state to be “NY”, the group being the top, the number looked at being 10</li>
-</ol>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(f_results[[<span class="dv">1</span>]], <span class="at">State =</span> <span class="st">"NY"</span>, <span class="at">Order =</span> <span class="st">"Top"</span>, <span class="at">n =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">

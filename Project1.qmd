@@ -1,5 +1,6 @@
 ---
-title: "Project1"
+title: "Project 1"
+author: "Anna Giczewska, Smit Miyani"
 format: html
 editor: visual
 ---
@@ -10,7 +11,7 @@ The files to be read contain information from the *Census Bureau* in csv format.
 
 ### Data Processing
 
-#### First Steps
+#### Isolated Data Processing Steps
 
 The first step requires retuning specific columns from full set. This is made easier using the `tidyverse` packages. Loading the `tidyverse` packages using `require()` .
 
@@ -115,7 +116,7 @@ f1_not_county <- f1_not_county |>
 f1_not_county
 ```
 
-#### Creating Functions
+#### Developing Functions for Data Processing
 
 In this step, we are creating functions, that perform the same data processing steps as above on a new dataset with similar schema. Firstly, reading `file_2` from the url provided.
 
@@ -272,9 +273,9 @@ final_results[[1]] #County
 final_results[[2]]#State
 ```
 
-### Writing a Generic Function for Summarizing
+### Writing a Generic Function for Summarizing Data
 
-#### First Steps
+#### Creating Plotting Functions
 
 Creating a function that is assigned to class state . So by calling an object of class state within plot() function yields line plots of mean enrollment value of each division across years.
 
@@ -367,27 +368,29 @@ plot.county <- function(df, State = "NC", Order = "Top",n = 5, var_name = "Value
 plot(final_results[[1]])
 ```
 
-### Put it Together
+#### Custom Plot Function Implementation
 
--   Use the plot function on the county data frame with few more cases (plot with default values presented above): a) Once specifying the state to be "NC", the group being the top, the number looked at being 20
+Use the plot function on the county data frame with few more cases (plot with default values presented above):
+
+- Once specifying the state to be "NC", the group being the top, the number looked at being 20
 
 ```{r}
 plot(final_results[[1]],State = "NC", Order = "Top", n = 20)
 ```
 
-b)  Once specifying the state to be "SC", the group being the bottom, the number looked at being 7
+- Once specifying the state to be "SC", the group being the bottom, the number looked at being 7
 
 ```{r}
 plot(final_results[[1]], State = "SC", Order = "Bottom", n = 7)
 ```
 
-c)  Once specifying the state to be "PA", the group being the top, the number looked at being 8
+- Once specifying the state to be "PA", the group being the top, the number looked at being 8
 
 ```{r}
 plot(final_results[[1]], State = "PA", Order = "Top", n = 8)
 ```
 
-## Final function application
+## Final Implementation of Functions
 
 Run data processing function on the four data sets at 4 additional URLs
 
@@ -420,25 +423,27 @@ Use the plot function on the state data frame
 plot(f_results[[2]])
 ```
 
-Plot function on the county data frame: a). Once specifying the state to be "CA", the group being the top, the number looked at being 15
+Plot function on the county data frame: 
+
+- Once specifying the state to be "CA", the group being the top, the number looked at being 15
 
 ```{r}
 plot(f_results[[1]], State = "CA", Order = "Top", n = 15 )
 ```
 
-b)  Once specifying the state to be "TX", the group being the top, the number looked at being 4
+- Once specifying the state to be "TX", the group being the top, the number looked at being 4
 
 ```{r}
 plot(f_results[[1]], State = "TX", Order = "Top", n = 4 )
 ```
 
-c)  Once without specifying anything (defaults used)
+- Once without specifying anything (defaults used)
 
 ```{r}
 plot(f_results[[1]])
 ```
 
-d)  Once specifying the state to be "NY", the group being the top, the number looked at being 10
+- Once specifying the state to be "NY", the group being the top, the number looked at being 10
 
 ```{r}
 plot(f_results[[1]], State = "NY", Order = "Top", n = 10)
